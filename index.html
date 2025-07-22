@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TdP and QT Risk Assessment Tool</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
 </head>
 <body>
@@ -47,8 +47,12 @@
       <button type="submit">Submit</button>
     </form>
 
-    <div id="results"></div>
-    <canvas id="hillPlot" height="300"></canvas>
+    <div id="results" style="margin-top: 30px;"></div>
+
+    <h2>Hill Fit Curve</h2>
+    <canvas id="hillPlot" height="300" style="margin-bottom: 40px;"></canvas>
+
+    <h2>Model 2 TdP Risk</h2>
     <canvas id="riskBarChart" height="200"></canvas>
   </div>
 

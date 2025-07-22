@@ -1,4 +1,5 @@
-// script.js
+let hillChart, barChart;
+
 function addRow() {
   const tbody = document.getElementById("dataBody");
   const newRow = document.createElement("tr");
@@ -9,7 +10,6 @@ function addRow() {
   tbody.appendChild(newRow);
 }
 
-let hillChart, barChart;
 document.getElementById("riskForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -108,7 +108,7 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   const fitY = fitX.map(x => hillFunc(x, bestParams));
 
   if (hillChart) hillChart.destroy();
-hillChart = new Chart(document.getElementById("hillPlot"), {
+  hillChart = new Chart(document.getElementById("hillPlot"), {
     type: "line",
     data: {
       labels: fitX,
@@ -121,7 +121,7 @@ hillChart = new Chart(document.getElementById("hillPlot"), {
   });
 
   if (barChart) barChart.destroy();
-barChart = new Chart(document.getElementById("riskBarChart"), {
+  barChart = new Chart(document.getElementById("riskBarChart"), {
     type: "bar",
     data: {
       labels: ["High", "Intermediate", "Low"],

@@ -104,8 +104,17 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
     <p><strong>Estimated QTc (log M):</strong> ${EstQTcLogM.toFixed(4)}</p>
   `;
 
-  const fitX = Array.from({ length: 100 }, (_, i) => Math.pow(10, Math.log10(Math.min(...concentrations) || 0.01) + i * (Math.log10(Math.max(...concentrations)) - Math.log10(Math.min(...concentrations) || 0.01)) / 99));
+  // Protect against log10(0)
+  const minConc = Math.max(0.001, Math.min(...concentrations));
+  const maxConc = Math.max(...concentrations);
+  const fitX = Array.from({ length: 100 }, (_, i) =>
+    Math.pow(10, Math.log10(minConc) + i * (Math.log10(maxConc) - Math.log10(minConc)) / 99)
+  );
   const fitY = fitX.map(x => hillFunc(x, bestParams));
+
+  // Debugging output
+  console.log("fitX:", fitX);
+  console.log("fitY:", fitY);
 
   if (hillChart) hillChart.destroy();
   hillChart = new Chart(document.getElementById("hillPlot"), {
@@ -117,7 +126,12 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
         { label: "Data", data: concentrations.map((x, i) => ({ x, y: fpdcs[i] })), showLine: false, borderColor: "#e55353", backgroundColor: "#e55353", pointRadius: 5, type: 'scatter' }
       ]
     },
-    options: { scales: { x: { type: "log", title: { display: true, text: "Concentration (uM)" } }, y: { title: { display: true, text: "FPDc (ms)" } } } }
+    options: {
+      scales: {
+        x: { type: "logarithmic", title: { display: true, text: "Concentration (uM)" } },
+        y: { title: { display: true, text: "FPDc (ms)" } }
+      }
+    }
   });
 
   if (barChart) barChart.destroy();
@@ -131,7 +145,11 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
         backgroundColor: ["#d9534f", "#f0ad4e", "#5cb85c"]
       }]
     },
-    options: { scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: "% Risk" } } } }
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 100, title: { display: true, text: "% Risk" } }
+      }
+    }
   });
 });
 

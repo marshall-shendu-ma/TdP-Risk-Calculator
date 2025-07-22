@@ -9,6 +9,7 @@ function addRow() {
   tbody.appendChild(newRow);
 }
 
+let hillChart, barChart;
 document.getElementById("riskForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -106,7 +107,8 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   const fitX = Array.from({ length: 100 }, (_, i) => Math.pow(10, Math.log10(Math.min(...concentrations) || 0.01) + i * (Math.log10(Math.max(...concentrations)) - Math.log10(Math.min(...concentrations) || 0.01)) / 99));
   const fitY = fitX.map(x => hillFunc(x, bestParams));
 
-  new Chart(document.getElementById("hillPlot"), {
+  if (hillChart) hillChart.destroy();
+hillChart = new Chart(document.getElementById("hillPlot"), {
     type: "line",
     data: {
       labels: fitX,
@@ -118,7 +120,8 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
     options: { scales: { x: { type: "log", title: { display: true, text: "Concentration (uM)" } }, y: { title: { display: true, text: "FPDc (ms)" } } } }
   });
 
-  new Chart(document.getElementById("riskBarChart"), {
+  if (barChart) barChart.destroy();
+barChart = new Chart(document.getElementById("riskBarChart"), {
     type: "bar",
     data: {
       labels: ["High", "Intermediate", "Low"],

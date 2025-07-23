@@ -3,6 +3,14 @@ let showInNM = false;
 let qtcLogM = null;
 let cmaxIsNM = true; // default is nM
 
+// Wait for DOM to fully load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("riskForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    processInput();
+  });
+});
+
 function toggleQTUnit() {
   if (qtcLogM === null) return;
   const value = Math.pow(10, qtcLogM);
@@ -149,13 +157,20 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
 }
 
 function processInput() {
+  console.log("processInput called");
+
   let cmax = parseFloat(document.getElementById("cmax").value);
+  console.log("Raw Cmax:", cmax, cmaxIsNM ? "(nM)" : "(µM)");
+
   if (isNaN(cmax)) {
     alert("Please enter a valid Cmax value.");
     return;
   }
 
-  if (!cmaxIsNM) cmax *= 1000; // convert µM to nM
+  if (!cmaxIsNM) {
+    cmax *= 1000;
+    console.log("Converted Cmax to nM:", cmax);
+  }
 
   const tableRows = document.querySelectorAll("#dataBody tr");
   const conc = [], fpd = [];
@@ -170,6 +185,9 @@ function processInput() {
     }
   }
 
+  console.log("Concentration values:", conc);
+  console.log("FPDc values:", fpd);
+
   if (conc.length < 2 || fpd.length < 2) {
     alert("Please enter at least two valid data pairs.");
     return;
@@ -183,9 +201,10 @@ function processInput() {
     return denom === 0 ? NaN : Emax * Math.pow(x, HillSlope) / denom;
   };
 
+  console.log("Drawing plots...");
   drawHillPlot(conc, fpd, cmax, fittedFunc);
 
-  const qtcLogM = -8.2; // Replace with real calculation if needed
+  const qtcLogM = -8.2;
   updateQTcDisplay(qtcLogM);
   drawRiskChart(isModel1);
 }

@@ -63,7 +63,7 @@
         </form>
       </section>
 
-      <!-- Right Column: Output -->
+      <!-- Right Column: Outputs -->
       <section class="outputs">
         <div class="results-section">
           <h2>Predicted QT Prolongation Based on Kilfoil Model (Kilfoil et al, 2021)</h2>
@@ -96,4 +96,67 @@
       [0.3, -9.896511811],
       [1, -6.042574659],
       [3, -6.202598821],
-      [10, 0]()
+      [10, 0.119295506],
+      [30, 26.65467584],
+      [100, 56.36015548],
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const tbody = document.getElementById("dataBody");
+      defaultData.forEach(pair => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="number" step="any" value="${pair[0]}" required></td>
+          <td><input type="number" step="any" value="${pair[1]}" required></td>
+          <td><button type="button" onclick="removeRow(this)">−</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById("riskForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        processInput();
+      });
+    });
+
+    function addRow() {
+      const tbody = document.getElementById("dataBody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input type="number" step="any" required></td>
+        <td><input type="number" step="any" required></td>
+        <td><button type="button" onclick="removeRow(this)">−</button></td>
+      `;
+      tbody.appendChild(row);
+    }
+
+    function removeRow(button) {
+      const row = button.closest("tr");
+      if (row && row.parentNode) row.parentNode.removeChild(row);
+    }
+
+    function toggleCmaxUnit() {
+      const cmaxInput = document.getElementById("cmax");
+      const unitLabel = document.getElementById("cmaxUnit");
+      const button = event.target;
+      let value = parseFloat(cmaxInput.value);
+
+      if (!isNaN(value)) {
+        if (cmaxIsNM) {
+          value = value / 1000;
+          unitLabel.textContent = "(µM)";
+          button.textContent = "Switch to nM";
+        } else {
+          value = value * 1000;
+          unitLabel.textContent = "(nM)";
+          button.textContent = "Switch to µM";
+        }
+        cmaxInput.value = value.toFixed(4);
+        cmaxIsNM = !cmaxIsNM;
+      }
+    }
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

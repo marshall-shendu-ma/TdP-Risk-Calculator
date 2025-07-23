@@ -1,10 +1,10 @@
 let isModel1 = false;
 let showInNM = false;
 let qtcLogM = null;
+let cmaxIsNM = true; // default is nM
 
 function toggleQTUnit() {
   if (qtcLogM === null) return;
-
   const value = Math.pow(10, qtcLogM);
   const converted = showInNM ? value * 1e6 : value * 1e9;
   const unit = showInNM ? "µM" : "nM";
@@ -63,8 +63,7 @@ function updateQTcDisplay(logValue) {
   showInNM = false;
 
   document.getElementById("qtcValueLog").innerText = logValue.toFixed(4);
-
-  const value = Math.pow(10, logValue) * 1e9; // default display in nM
+  const value = Math.pow(10, logValue) * 1e9;
   document.getElementById("qtcValue").innerText = `${value.toFixed(8)} nM`;
   document.querySelector("#estimatedQTc button").innerText = "Switch to µM";
 }
@@ -73,7 +72,6 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
   const ctx = document.getElementById("hillPlot").getContext("2d");
   if (window.hillChart) window.hillChart.destroy();
 
-  // Convert to log10 scale for x-axis
   const logXVals = xVals.map(x => Math.log10(x));
   const logCmax = Math.log10(cmax);
 
@@ -82,8 +80,13 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
   const maxX = Math.max(...xVals) * 1.5;
 
   for (let x = minX; x <= maxX; x *= 1.05) {
+    const fx = fittedFunc(x);
+    if (isNaN(fx)) {
+      alert("Error: Hill fit did not converge. Please check input data.");
+      return;
+    }
     fitX.push(Math.log10(x));
-    fitY.push(fittedFunc(x));
+    fitY.push(fx);
   }
 
   window.hillChart = new Chart(ctx, {
@@ -146,10 +149,17 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
 }
 
 function processInput() {
-  const cmax = parseFloat(document.getElementById("cmax").value);
-  const tableRows = document.querySelectorAll("#dataBody tr");
+  let cmax = parseFloat(document.getElementById("cmax").value);
+  if (isNaN(cmax)) {
+    alert("Please enter a valid Cmax value.");
+    return;
+  }
 
+  if (!cmaxIsNM) cmax *= 1000; // convert µM to nM
+
+  const tableRows = document.querySelectorAll("#dataBody tr");
   const conc = [], fpd = [];
+
   for (let row of tableRows) {
     const inputs = row.querySelectorAll("input");
     const x = parseFloat(inputs[0].value);
@@ -160,21 +170,22 @@ function processInput() {
     }
   }
 
-  if (conc.length < 2 || fpd.length < 2 || isNaN(cmax)) {
-    alert("Please enter valid Cmax and at least two data pairs.");
+  if (conc.length < 2 || fpd.length < 2) {
+    alert("Please enter at least two valid data pairs.");
     return;
   }
 
-  // Dummy Hill function (replace with real fit later)
   const Emax = Math.max(...fpd);
   const EC50 = conc[Math.floor(conc.length / 2)];
   const HillSlope = 1.2;
-  const fittedFunc = (x) => Emax * Math.pow(x, HillSlope) / (Math.pow(EC50, HillSlope) + Math.pow(x, HillSlope));
+  const fittedFunc = (x) => {
+    const denom = Math.pow(EC50, HillSlope) + Math.pow(x, HillSlope);
+    return denom === 0 ? NaN : Emax * Math.pow(x, HillSlope) / denom;
+  };
 
   drawHillPlot(conc, fpd, cmax, fittedFunc);
 
-  const qtcLogM = -8.2; // Replace with real model
+  const qtcLogM = -8.2; // Replace with real calculation if needed
   updateQTcDisplay(qtcLogM);
-
   drawRiskChart(isModel1);
 }

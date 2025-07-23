@@ -27,8 +27,8 @@ function drawRiskChart(model1) {
   if (window.riskChart) window.riskChart.destroy();
 
   const data = model1
-    ? [0.45, 0.55, 0] // Placeholder for Model 1
-    : [0.3, 0.4, 0.3]; // Placeholder for Model 2
+    ? [0.45, 0.55, 0]
+    : [0.3, 0.4, 0.3];
 
   const labels = model1
     ? ["High or Intermediate Risk", "Low Risk", ""]
@@ -62,4 +62,67 @@ function updateQTcDisplay(logValue) {
   qtcLogM = logValue;
   showInNM = false;
   toggleQTUnit();
+}
+
+function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
+  const ctx = document.getElementById("hillPlot").getContext("2d");
+  if (window.hillChart) window.hillChart.destroy();
+
+  const fitX = [], fitY = [];
+  for (let x = 0.001; x <= Math.max(...xVals) * 1.2; x += 0.01) {
+    fitX.push(x);
+    fitY.push(fittedFunc(x));
+  }
+
+  window.hillChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: fitX,
+      datasets: [
+        {
+          label: 'Hill Fit Curve',
+          data: fitY,
+          borderColor: '#007bff',
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0
+        },
+        {
+          label: 'Data Points',
+          type: 'scatter',
+          data: xVals.map((x, i) => ({ x: x, y: yVals[i] })),
+          backgroundColor: '#ff6384',
+          pointRadius: 5
+        },
+        {
+          label: 'Cmax',
+          type: 'line',
+          data: [
+            { x: cmax, y: Math.min(...yVals) },
+            { x: cmax, y: Math.max(...yVals) }
+          ],
+          borderColor: '#28a745',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          fill: false,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: { display: true, text: 'Concentration (µM)' }
+        },
+        y: {
+          title: { display: true, text: 'FPDc (ms)' }
+        }
+      }
+    }
+  });
 }

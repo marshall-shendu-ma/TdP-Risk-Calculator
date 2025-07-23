@@ -1,4 +1,3 @@
-// script.js
 let isModel1 = false;
 let showInNM = false;
 let qtcLogM = null;
@@ -65,7 +64,7 @@ function updateQTcDisplay(logValue) {
 
   document.getElementById("qtcValueLog").innerText = logValue.toFixed(4);
 
-  const value = Math.pow(10, logValue) * 1e9; // default to nM
+  const value = Math.pow(10, logValue) * 1e9; // default display in nM
   document.getElementById("qtcValue").innerText = `${value.toFixed(8)} nM`;
   document.querySelector("#estimatedQTc button").innerText = "Switch to µM";
 }
@@ -74,9 +73,16 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
   const ctx = document.getElementById("hillPlot").getContext("2d");
   if (window.hillChart) window.hillChart.destroy();
 
+  // Convert to log10 scale for x-axis
+  const logXVals = xVals.map(x => Math.log10(x));
+  const logCmax = Math.log10(cmax);
+
   const fitX = [], fitY = [];
-  for (let x = 0.001; x <= Math.max(...xVals) * 1.2; x += 0.01) {
-    fitX.push(x);
+  const minX = Math.min(...xVals) * 0.5;
+  const maxX = Math.max(...xVals) * 1.5;
+
+  for (let x = minX; x <= maxX; x *= 1.05) {
+    fitX.push(Math.log10(x));
     fitY.push(fittedFunc(x));
   }
 
@@ -96,7 +102,7 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
         {
           label: 'Data Points',
           type: 'scatter',
-          data: xVals.map((x, i) => ({ x: x, y: yVals[i] })),
+          data: logXVals.map((x, i) => ({ x: x, y: yVals[i] })),
           backgroundColor: '#ff6384',
           pointRadius: 5
         },
@@ -104,8 +110,8 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
           label: 'Cmax',
           type: 'line',
           data: [
-            { x: cmax, y: Math.min(...yVals) },
-            { x: cmax, y: Math.max(...yVals) }
+            { x: logCmax, y: Math.min(...yVals) },
+            { x: logCmax, y: Math.max(...yVals) }
           ],
           borderColor: '#28a745',
           borderWidth: 2,
@@ -123,10 +129,16 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
       scales: {
         x: {
           type: 'linear',
-          title: { display: true, text: 'Concentration (µM)' }
+          title: {
+            display: true,
+            text: 'log₁₀[Concentration (µM)]'
+          }
         },
         y: {
-          title: { display: true, text: 'FPDc (ms)' }
+          title: {
+            display: true,
+            text: 'FPDc (ms)'
+          }
         }
       }
     }
@@ -153,7 +165,7 @@ function processInput() {
     return;
   }
 
-  // Dummy Hill function for now
+  // Dummy Hill function (replace with real fit later)
   const Emax = Math.max(...fpd);
   const EC50 = conc[Math.floor(conc.length / 2)];
   const HillSlope = 1.2;
@@ -161,8 +173,7 @@ function processInput() {
 
   drawHillPlot(conc, fpd, cmax, fittedFunc);
 
-  // Dummy QTc prediction (log M)
-  const qtcLogM = -8.2; // replace with real model logic if needed
+  const qtcLogM = -8.2; // Replace with real model
   updateQTcDisplay(qtcLogM);
 
   drawRiskChart(isModel1);

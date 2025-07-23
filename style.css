@@ -1,128 +1,145 @@
-/* style.css */
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f6f9;
-  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
   padding: 0;
+  background: #f4f6f9;
   color: #333;
 }
 
-.app {
-  max-width: 1100px;
-  margin: auto;
-  padding: 2rem;
-}
-
-header {
+h1 {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1em;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  color: #2c7be5;
-}
-
-.inputs form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+form {
+  max-width: 900px;
+  margin: 0 auto 2em auto;
   background: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.field-group {
+label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: 600;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 10px;
+  text-align: left;
+}
+
+table input {
+  width: 90%;
+  padding: 5px;
+}
+
+.add-remove-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.field-group label {
-  margin-bottom: 0.5rem;
+.add-remove-row button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+}
+
+.add-remove-row button.remove-row {
+  background-color: #dc3545;
+}
+
+button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+.results-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.results-section h2 {
+  margin-top: 0;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 30px 0;
+}
+
+#riskChartTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.2em;
   font-weight: bold;
 }
 
-.field-group input,
-.field-group select {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.field-group.wide {
-  grid-column: 1 / -1;
-}
-
-.small-btn {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  padding: 0.3rem 0.6rem;
-  background: #5bc0de;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.small-btn:hover {
-  background: #31b0d5;
-}
-
-.submit-btn {
-  grid-column: 1 / -1;
-  padding: 0.7rem;
-  font-size: 1rem;
-  background-color: #28a745;
+#riskChartTitle button {
+  font-size: 0.9em;
+  padding: 4px 10px;
+  margin-left: 10px;
+  background-color: #17a2b8;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.submit-btn:hover {
-  background-color: #218838;
+#riskChartTitle button:hover {
+  background-color: #138496;
 }
 
-.results {
-  margin: 2rem 0;
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+#estimatedQTc p {
+  margin: 0.5em 0;
 }
 
-.charts .chart-block {
-  margin-bottom: 2.5rem;
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+section {
+  margin-bottom: 2em;
 }
 
-.charts h2 {
-  margin-top: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#dataBody td button {
-  background: #dc3545;
-  color: white;
+hr {
+  margin: 2em 0;
   border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#dataBody td button:hover {
-  background: #c82333;
-}
-
-canvas {
-  width: 100% !important;
-  height: auto !important;
+  height: 1px;
+  background: #ddd;
 }

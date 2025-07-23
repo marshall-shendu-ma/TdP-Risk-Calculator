@@ -1,4 +1,6 @@
+// script.js
 let hillChart, barChart;
+let showingModel1 = false;
 
 function addRow() {
   const tbody = document.getElementById("dataBody");
@@ -6,8 +8,39 @@ function addRow() {
   newRow.innerHTML = `
     <td><input type="number" step="any" required></td>
     <td><input type="number" step="any" required></td>
+    <td><button type="button" onclick="removeRow(this)">−</button></td>
   `;
   tbody.appendChild(newRow);
+}
+
+function removeRow(btn) {
+  const row = btn.closest("tr");
+  row.remove();
+}
+
+function switchModel() {
+  showingModel1 = !showingModel1;
+  const title = document.getElementById("riskChartTitle");
+  const desc = document.getElementById("modelRiskDescription");
+  const data = showingModel1
+    ? [window.Prob_Model1 * 100, 0, (1 - window.Prob_Model1) * 100]
+    : [window.Prob_Model2a * 100, window.Prob_Model2b * 100, (1 - window.Prob_Model2a - window.Prob_Model2b) * 100];
+  const labels = showingModel1 ? ["High/Intermediate", "", "Low"] : ["High", "Intermediate", "Low"];
+  const titleText = showingModel1 ? "Model 1 TdP Risk" : "Model 2 TdP Risk";
+  const descText = showingModel1
+    ? `<p><strong>High/Intermediate TdP Risk:</strong> ${(window.Prob_Model1 * 100).toFixed(1)}%</p>
+       <p><strong>Low TdP Risk:</strong> ${((1 - window.Prob_Model1) * 100).toFixed(1)}%</p>`
+    : `<p><strong>High TdP Risk:</strong> ${(window.Prob_Model2a * 100).toFixed(1)}%</p>
+       <p><strong>Intermediate TdP Risk:</strong> ${(window.Prob_Model2b * 100).toFixed(1)}%</p>
+       <p><strong>Low TdP Risk:</strong> ${((1 - window.Prob_Model2a - window.Prob_Model2b) * 100).toFixed(1)}%</p>`;
+
+  if (barChart) {
+    barChart.data.labels = labels;
+    barChart.data.datasets[0].data = data;
+    barChart.update();
+  }
+  title.textContent = titleText;
+  desc.innerHTML = descText;
 }
 
 document.getElementById("riskForm").addEventListener("submit", function (e) {
@@ -70,54 +103,27 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   const Predictor7 = FPD_Cmax;
 
   const Threshold_FPDc = assayTime === "30" ? Bottom * 1.103 : Bottom * 1.0794;
-  const QTcEqUsed = assayTime === "30"
-    ? "QTc = 0.92 * x - 0.35"
-    : "QTc = 0.93 * x - 0.17";
   const EstQTcLogM = assayTime === "30"
     ? (Threshold_FPDc + 0.35) / 0.92
     : (Threshold_FPDc + 0.17) / 0.93;
   const EstQTc_uM = Math.pow(10, EstQTcLogM);
 
-  const Threshold_C = bestParams.EC50 / Math.pow((bestParams.Top - bestParams.Bottom) / (Threshold_FPDc - bestParams.Bottom) - 1, 1 / bestParams.Hill);
-  const Threshold_C_logM = Math.log10(Threshold_C * 1e-6);
-
   const P1_High = -0.1311 + Predictor1 + Predictor4 * 0.00687 + Predictor7 * 0.0232;
-  const Prob_Model1 = 1 / (1 + Math.exp(-P1_High));
+  window.Prob_Model1 = 1 / (1 + Math.exp(-P1_High));
 
   const P2_a = -2.1102 + cellType * 0.2211 + 0.00105 * Predictor4 + 0.0338 * Predictor7 + Predictor1;
-  const Prob_Model2a = 1 / (1 + Math.exp(-P2_a));
+  window.Prob_Model2a = 1 / (1 + Math.exp(-P2_a));
 
   const P2_b = -0.1211 + cellType * 0.2211 + 0.00105 * Predictor4 + 0.0338 * Predictor7 + Predictor1;
-  const Prob_Model2b = 1 / (1 + Math.exp(-P2_b));
+  window.Prob_Model2b = 1 / (1 + Math.exp(-P2_b));
 
-  // === Update Kilfoil QT Section ===
   document.getElementById("estimatedQTc").innerHTML = `
     <strong>Estimated QTc (log M):</strong> ${EstQTcLogM.toFixed(4)}<br>
     <strong>Converted to µM:</strong> ${EstQTc_uM.toFixed(4)} µM
   `;
 
-  // === Update Model 1 Risk Section ===
-  document.getElementById("model1Risk").innerHTML = `
-    <p><strong>High/Intermediate TdP Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
-    <p><strong>Low TdP Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
-  `;
+  switchModel();
 
-  // === Bar Chart for Model 2 ===
-  if (barChart) barChart.destroy();
-  barChart = new Chart(document.getElementById("riskBarChart"), {
-    type: "bar",
-    data: {
-      labels: ["High", "Intermediate", "Low"],
-      datasets: [{
-        label: "% TdP Risk (Model 2)",
-        data: [Prob_Model2a * 100, Prob_Model2b * 100, (1 - Prob_Model2a - Prob_Model2b) * 100],
-        backgroundColor: ["#d9534f", "#f0ad4e", "#5cb85c"]
-      }]
-    },
-    options: { scales: { y: { beginAtZero: true, max: 100 } } }
-  });
-
-  // === Hill Curve Plot ===
   const minConc = Math.max(0.001, Math.min(...concentrations));
   const maxConc = Math.max(...concentrations);
   const fitX = Array.from({ length: 100 }, (_, i) =>
@@ -136,26 +142,28 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
           data: fitX.map((x, i) => ({ x, y: fitY[i] })),
           borderWidth: 2,
           borderColor: "#2c7be5",
-          fill: false,
-          tension: 0.1
+          fill: false
         },
         {
           label: "Cmax Point",
           data: [{ x: Cmax, y: FPD_Cmax }],
-          pointBackgroundColor: "#ff6b6b",
-          pointRadius: 6,
-          type: "scatter"
+          type: "scatter",
+          backgroundColor: "#ff6b6b",
+          pointRadius: 6
+        },
+        {
+          label: "User Input Points",
+          data: concentrations.map((x, i) => ({ x, y: fpdcs[i] })),
+          type: "scatter",
+          backgroundColor: "#5bc0de",
+          pointRadius: 5
         }
       ]
     },
     options: {
       scales: {
-        x: { type: "logarithmic", title: { display: true, text: "Concentration (µM)" } },
+        x: { type: "log", title: { display: true, text: "Concentration (µM)" } },
         y: { title: { display: true, text: "FPDc (ms)" } }
-      },
-      plugins: {
-        tooltip: { enabled: true },
-        legend: { position: "top" }
       }
     }
   });
@@ -166,3 +174,7 @@ function median(arr) {
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  for (let i = 0; i < 4; i++) addRow();
+});

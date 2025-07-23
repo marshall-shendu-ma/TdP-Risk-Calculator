@@ -13,7 +13,8 @@ function addRow() {
 document.getElementById("riskForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const Cmax = parseFloat(document.getElementById("cmax").value) / 1000;
+  const Cmax_nM = parseFloat(document.getElementById("cmax").value);
+  const Cmax = Cmax_nM / 1000;
   const arrhythmia = parseInt(document.getElementById("arrhythmia").value);
   const cellType = parseFloat(document.getElementById("celltype").value);
   const assayTime = document.getElementById("assay").value;
@@ -75,6 +76,7 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   const EstQTcLogM = assayTime === "30"
     ? (Threshold_FPDc + 0.35) / 0.92
     : (Threshold_FPDc + 0.17) / 0.93;
+  const EstQTc_uM = Math.pow(10, EstQTcLogM);
 
   const Threshold_C = bestParams.EC50 / Math.pow((bestParams.Top - bestParams.Bottom) / (Threshold_FPDc - bestParams.Bottom) - 1, 1 / bestParams.Hill);
   const Threshold_C_logM = Math.log10(Threshold_C * 1e-6);
@@ -88,52 +90,19 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   const P2_b = -0.1211 + cellType * 0.2211 + 0.00105 * Predictor4 + 0.0338 * Predictor7 + Predictor1;
   const Prob_Model2b = 1 / (1 + Math.exp(-P2_b));
 
-  const resultDiv = document.getElementById("results");
-  resultDiv.innerHTML = `
-    <h2>Results</h2>
-    <p><strong>Model 1:</strong></p>
-    <p>High/Intermediate TdP Risk: ${(Prob_Model1 * 100).toFixed(1)}%</p>
-    <p>Low TdP Risk: ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
-    <p><strong>Model 2:</strong></p>
-    <p>High TdP Risk: ${(Prob_Model2a * 100).toFixed(1)}%</p>
-    <p>Intermediate TdP Risk: ${(Prob_Model2b * 100).toFixed(1)}%</p>
-    <p>Low TdP Risk: ${((1 - Prob_Model2a - Prob_Model2b) * 100).toFixed(1)}%</p>
-    <p><strong>Threshold Concentration (uM):</strong> ${Threshold_C.toFixed(4)}</p>
-    <p><strong>Threshold (log M):</strong> ${Threshold_C_logM.toFixed(4)}</p>
-    <p><strong>QTc Equation Used:</strong> ${QTcEqUsed}</p>
-    <p><strong>Estimated QTc (log M):</strong> ${EstQTcLogM.toFixed(4)}</p>
+  // === Update Kilfoil QT Section ===
+  document.getElementById("estimatedQTc").innerHTML = `
+    <strong>Estimated QTc (log M):</strong> ${EstQTcLogM.toFixed(4)}<br>
+    <strong>Converted to µM:</strong> ${EstQTc_uM.toFixed(4)} µM
   `;
 
-  // Protect against log10(0)
-  const minConc = Math.max(0.001, Math.min(...concentrations));
-  const maxConc = Math.max(...concentrations);
-  const fitX = Array.from({ length: 100 }, (_, i) =>
-    Math.pow(10, Math.log10(minConc) + i * (Math.log10(maxConc) - Math.log10(minConc)) / 99)
-  );
-  const fitY = fitX.map(x => hillFunc(x, bestParams));
+  // === Update Model 1 Risk Section ===
+  document.getElementById("model1Risk").innerHTML = `
+    <p><strong>High/Intermediate TdP Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
+    <p><strong>Low TdP Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
+  `;
 
-  // Debugging output
-  console.log("fitX:", fitX);
-  console.log("fitY:", fitY);
-
-  if (hillChart) hillChart.destroy();
-  hillChart = new Chart(document.getElementById("hillPlot"), {
-    type: "line",
-    data: {
-      labels: fitX,
-      datasets: [
-        { label: "Hill Fit", data: fitY, borderWidth: 2, borderColor: "#2c7be5", fill: false },
-        { label: "Data", data: concentrations.map((x, i) => ({ x, y: fpdcs[i] })), showLine: false, borderColor: "#e55353", backgroundColor: "#e55353", pointRadius: 5, type: 'scatter' }
-      ]
-    },
-    options: {
-      scales: {
-        x: { type: "logarithmic", title: { display: true, text: "Concentration (uM)" } },
-        y: { title: { display: true, text: "FPDc (ms)" } }
-      }
-    }
-  });
-
+  // === Bar Chart for Model 2 ===
   if (barChart) barChart.destroy();
   barChart = new Chart(document.getElementById("riskBarChart"), {
     type: "bar",
@@ -145,9 +114,48 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
         backgroundColor: ["#d9534f", "#f0ad4e", "#5cb85c"]
       }]
     },
+    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+  });
+
+  // === Hill Curve Plot ===
+  const minConc = Math.max(0.001, Math.min(...concentrations));
+  const maxConc = Math.max(...concentrations);
+  const fitX = Array.from({ length: 100 }, (_, i) =>
+    Math.pow(10, Math.log10(minConc) + i * (Math.log10(maxConc) - Math.log10(minConc)) / 99)
+  );
+  const fitY = fitX.map(x => hillFunc(x, bestParams));
+
+  if (hillChart) hillChart.destroy();
+  hillChart = new Chart(document.getElementById("hillPlot"), {
+    type: "line",
+    data: {
+      labels: fitX,
+      datasets: [
+        {
+          label: "Hill Fit Curve",
+          data: fitX.map((x, i) => ({ x, y: fitY[i] })),
+          borderWidth: 2,
+          borderColor: "#2c7be5",
+          fill: false,
+          tension: 0.1
+        },
+        {
+          label: "Cmax Point",
+          data: [{ x: Cmax, y: FPD_Cmax }],
+          pointBackgroundColor: "#ff6b6b",
+          pointRadius: 6,
+          type: "scatter"
+        }
+      ]
+    },
     options: {
       scales: {
-        y: { beginAtZero: true, max: 100, title: { display: true, text: "% Risk" } }
+        x: { type: "logarithmic", title: { display: true, text: "Concentration (µM)" } },
+        y: { title: { display: true, text: "FPDc (ms)" } }
+      },
+      plugins: {
+        tooltip: { enabled: true },
+        legend: { position: "top" }
       }
     }
   });

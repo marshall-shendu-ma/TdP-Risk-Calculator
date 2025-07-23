@@ -45,14 +45,9 @@
           <label>Concentration – FPDc Pairs</label>
           <table>
             <thead>
-              <tr><th>Conc (µM)</th><th>FPDc (ms)</th></tr>
+              <tr><th>Conc (µM)</th><th>FPDc (ms)</th><th></th></tr>
             </thead>
-            <tbody id="dataBody">
-              <tr>
-                <td><input type="number" step="any" required></td>
-                <td><input type="number" step="any" required></td>
-              </tr>
-            </tbody>
+            <tbody id="dataBody"></tbody>
           </table>
           <button type="button" onclick="addRow()" class="small-btn">Add row</button>
         </div>
@@ -73,12 +68,8 @@
       </div>
 
       <div class="chart-block">
-        <h2>Model 1 TdP Risk</h2>
-        <div id="model1Risk"></div>
-      </div>
-
-      <div class="chart-block">
-        <h2>Model 2 TdP Risk</h2>
+        <h2 id="riskChartTitle">Model 2 TdP Risk <button onclick="switchModel()">Switch TdP Risk Calculating Model</button></h2>
+        <div id="modelRiskDescription"></div>
         <canvas id="riskBarChart"></canvas>
       </div>
 

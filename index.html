@@ -88,6 +88,7 @@
     </div>
   </div>
 
+  <!-- Setup default table data + form behavior -->
   <script>
     let cmaxIsNM = true;
 
@@ -111,11 +112,6 @@
           <td><button type="button" onclick="removeRow(this)">−</button></td>
         `;
         tbody.appendChild(row);
-      });
-
-      document.getElementById("riskForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        processInput();
       });
     });
 

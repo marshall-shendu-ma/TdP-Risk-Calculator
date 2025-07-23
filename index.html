@@ -68,11 +68,11 @@
         <div class="results-section">
           <h2>Predicted QT Prolongation Based on Kilfoil Model (Kilfoil et al, 2021)</h2>
           <p><strong>Estimated QTc (log M):</strong> <span id="qtcValueLog"></span></p>
-          <p id="estimatedQTc"><strong>Estimated QTc:</strong> <span id="qtcValue"></span> <button onclick="toggleQTUnit()">Switch to µM</button></p>
+          <p id="estimatedQTc"><strong>Estimated QTc:</strong> <span id="qtcValue"></span> <button type="button" onclick="toggleQTUnit()">Switch to µM</button></p>
         </div>
 
         <div class="chart-block">
-          <h2 id="riskChartTitle">Model 2 TdP Risk <button onclick="switchModel()">Switch TdP Risk Calculating Model</button></h2>
+          <h2 id="riskChartTitle">Model 2 TdP Risk <button type="button" onclick="switchModel()">Switch TdP Risk Calculating Model</button></h2>
           <div id="modelRiskDescription">Ordinal regression</div>
           <canvas id="riskBarChart"></canvas>
         </div>
@@ -85,6 +85,7 @@
     </div>
   </div>
 
+  <!-- Default data + utility functions -->
   <script>
     let cmaxIsNM = true;
     const defaultData = [

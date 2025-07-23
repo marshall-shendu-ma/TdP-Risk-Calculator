@@ -17,25 +17,31 @@
     <section class="inputs">
       <form id="riskForm">
         <div class="field-group">
-          <label for="cmax">Cmax (nM)</label>
-          <input type="number" step="any" id="cmax" placeholder="e.g. 150" required>
+          <label for="cmax">Cmax <span id="cmaxUnit">(nM)</span></label>
+          <div style="display: flex; gap: 10px;">
+            <input type="number" step="any" id="cmax" value="8.1" required>
+            <button type="button" onclick="toggleCmaxUnit()" style="padding: 5px 10px;">Switch to µM</button>
+          </div>
         </div>
+
         <div class="field-group">
           <label for="arrhythmia">Arrhythmia Type</label>
           <select id="arrhythmia">
             <option value="0">No arrhythmia</option>
-            <option value="1">Type A arrhythmia</option>
+            <option value="1" selected>Type A arrhythmia</option>
             <option value="2">Other arrhythmia</option>
           </select>
         </div>
+
         <div class="field-group">
           <label for="celltype">Cell Type (numeric)</label>
-          <input type="number" step="any" id="celltype" placeholder="e.g. 5" required>
+          <input type="number" step="any" id="celltype" value="0" required>
         </div>
+
         <div class="field-group">
-          <label for="assay">Assay Time</label>
+          <label for="assay">Assay Incubation Time</label>
           <select id="assay">
-            <option value="30">30 min</option>
+            <option value="30" selected>30 min</option>
             <option value="24">24 hours</option>
           </select>
         </div>
@@ -44,7 +50,7 @@
           <label>Concentration – FPDc Pairs</label>
           <table>
             <thead>
-              <tr><th>Conc (µM)</th><th>FPDc (ms)</th><th></th></tr>
+              <tr><th>Conc (nM)</th><th>FPDc (ms)</th><th></th></tr>
             </thead>
             <tbody id="dataBody"></tbody>
           </table>
@@ -81,8 +87,29 @@
   </div>
 
   <script>
+    let cmaxIsNM = true;
+
+    const defaultData = [
+      [0, 0],
+      [0.3, -9.896511811],
+      [1, -6.042574659],
+      [3, -6.202598821],
+      [10, 0.119295506],
+      [30, 26.65467584],
+      [100, 56.36015548],
+    ];
+
     document.addEventListener("DOMContentLoaded", () => {
-      for (let i = 0; i < 4; i++) addRow();
+      const tbody = document.getElementById("dataBody");
+      defaultData.forEach(pair => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="number" step="any" value="${pair[0]}" required></td>
+          <td><input type="number" step="any" value="${pair[1]}" required></td>
+          <td><button type="button" onclick="removeRow(this)">−</button></td>
+        `;
+        tbody.appendChild(row);
+      });
 
       document.getElementById("riskForm").addEventListener("submit", function (e) {
         e.preventDefault();
@@ -104,6 +131,29 @@
     function removeRow(button) {
       const row = button.closest("tr");
       if (row && row.parentNode) row.parentNode.removeChild(row);
+    }
+
+    function toggleCmaxUnit() {
+      const cmaxInput = document.getElementById("cmax");
+      const unitLabel = document.getElementById("cmaxUnit");
+      const button = event.target;
+      let value = parseFloat(cmaxInput.value);
+
+      if (!isNaN(value)) {
+        if (cmaxIsNM) {
+          // Convert nM to µM
+          value = value / 1000;
+          unitLabel.textContent = "(µM)";
+          button.textContent = "Switch to nM";
+        } else {
+          // Convert µM to nM
+          value = value * 1000;
+          unitLabel.textContent = "(nM)";
+          button.textContent = "Switch to µM";
+        }
+        cmaxInput.value = value.toFixed(4);
+        cmaxIsNM = !cmaxIsNM;
+      }
     }
   </script>
 

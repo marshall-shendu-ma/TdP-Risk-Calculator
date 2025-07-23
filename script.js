@@ -208,3 +208,16 @@ function processInput() {
   updateQTcDisplay(qtcLogM);
   drawRiskChart(isModel1);
 }
+// ✅ Prevent form from reloading the page
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("riskForm");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("Form submitted. Calling processInput...");
+      processInput();
+    });
+  } else {
+    console.error("Form element not found.");
+  }
+});

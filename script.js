@@ -1,14 +1,19 @@
 let isModel1 = false;
 let showInNM = false;
 let qtcLogM = null;
-let cmaxIsNM = true; // default is nM
+let cmaxIsNM = true;
 
-// Wait for DOM to fully load
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("riskForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    processInput();
-  });
+  const form = document.getElementById("riskForm");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("Form submitted. Calling processInput...");
+      processInput();
+    });
+  } else {
+    console.error("Form element not found.");
+  }
 });
 
 function toggleQTUnit() {
@@ -90,6 +95,7 @@ function drawHillPlot(xVals, yVals, cmax, fittedFunc) {
   for (let x = minX; x <= maxX; x *= 1.05) {
     const fx = fittedFunc(x);
     if (isNaN(fx)) {
+      console.error("Invalid Hill fit at x =", x);
       alert("Error: Hill fit did not converge. Please check input data.");
       return;
     }
@@ -196,28 +202,16 @@ function processInput() {
   const Emax = Math.max(...fpd);
   const EC50 = conc[Math.floor(conc.length / 2)];
   const HillSlope = 1.2;
+  console.log("Emax:", Emax, "EC50:", EC50, "HillSlope:", HillSlope);
+
   const fittedFunc = (x) => {
     const denom = Math.pow(EC50, HillSlope) + Math.pow(x, HillSlope);
     return denom === 0 ? NaN : Emax * Math.pow(x, HillSlope) / denom;
   };
 
-  console.log("Drawing plots...");
   drawHillPlot(conc, fpd, cmax, fittedFunc);
 
   const qtcLogM = -8.2;
   updateQTcDisplay(qtcLogM);
   drawRiskChart(isModel1);
 }
-// ✅ Prevent form from reloading the page
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("riskForm");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      console.log("Form submitted. Calling processInput...");
-      processInput();
-    });
-  } else {
-    console.error("Form element not found.");
-  }
-});

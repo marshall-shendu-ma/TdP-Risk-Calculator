@@ -17,6 +17,7 @@
 
     <section class="inputs">
       <form id="riskForm">
+        <!-- form fields (unchanged) -->
         <div class="field-group">
           <label for="cmax">Cmax (nM)</label>
           <input type="number" step="any" id="cmax" name="cmax" autocomplete="off" placeholder="e.g. 150.5" required>
@@ -68,6 +69,7 @@
     </section>
 
     <section class="charts">
+      <!-- QT prolongation section unchanged -->
       <div class="chart-block">
         <h2>Predicted QT Prolongation Based on Kilfoil Model (Kilfoil et al, 2021)</h2>
         <p><strong>Notes:</strong> QTc is the estimated compound concentration that induces >10 ms QT prolongation.<br>
@@ -76,18 +78,18 @@
         <p id="estimatedQTc"></p>
       </div>
 
+      <!-- Single toggleable panel -->
       <div class="model-panel">
-        <h2>Model 1 TdP Risk (Logistic Regression)</h2>
-        <div id="model1Results"></div>
-        <canvas id="model1Chart"></canvas>
+        <div class="panel-header">
+          <h2 id="modelTitle">Model 1 TdP Risk (Logistic Regression)</h2>
+          <button type="button" id="toggleModelBtn" class="small-btn">Switch Model</button>
+        </div>
+        <p id="modelSubtitle">Logistic regression predicting high or low risk.</p>
+        <div id="modelResults"></div>
+        <canvas id="modelChart"></canvas>
       </div>
 
-      <div class="model-panel">
-        <h2>Model 2 TdP Risk (Ordinal Regression)</h2>
-        <div id="model2Results"></div>
-        <canvas id="model2Chart"></canvas>
-      </div>
-
+      <!-- Hill fit unchanged -->
       <div class="chart-block">
         <h2>Hill Fit Curve</h2>
         <canvas id="hillPlot"></canvas>

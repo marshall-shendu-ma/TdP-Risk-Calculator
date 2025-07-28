@@ -1,4 +1,4 @@
-let hillChart, barChart;
+let hillChart, barChart, model1Chart, model2Chart;
 
 function addRow() {
   const tbody = document.getElementById("dataBody");
@@ -99,7 +99,54 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   // === Update Model 1 Risk Section ===
   document.getElementById("model1Risk").innerHTML = `
     <p><strong>High/Intermediate TdP Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
-    <p><strong>Low TdP Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
+    <p><strong>Low TdP Risk:</strong> ${((1 - Prob_Model1) * 100)
+  // === Update Model 1 Risk Section ===
+  document.getElementById("model1Results").innerHTML = `
+    <p><strong>High or Intermediate Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
+    <p><strong>Low Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
+  `;
+
+  if (window.model1Chart) model1Chart.destroy();
+  model1Chart = new Chart(document.getElementById("model1Chart"), {
+    type: "bar",
+    data: {
+      labels: ["High or Intermediate Risk", "Low Risk"],
+      datasets: [{
+        label: "Model 1 TdP Risk",
+        data: [Prob_Model1 * 100, (1 - Prob_Model1) * 100],
+        backgroundColor: ["#f0ad4e", "#5cb85c"]
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true, max: 100 } },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // === Update Model 2 Risk Section ===
+  document.getElementById("model2Results").innerHTML = `
+    <p><strong>High Risk:</strong> ${(Prob_Model2a * 100).toFixed(1)}%</p>
+    <p><strong>Intermediate Risk:</strong> ${(Prob_Model2b * 100).toFixed(1)}%</p>
+    <p><strong>Low Risk:</strong> ${((1 - Prob_Model2a - Prob_Model2b) * 100).toFixed(1)}%</p>
+  `;
+
+  if (window.model2Chart) model2Chart.destroy();
+  model2Chart = new Chart(document.getElementById("model2Chart"), {
+    type: "bar",
+    data: {
+      labels: ["High Risk", "Intermediate Risk", "Low Risk"],
+      datasets: [{
+        label: "Model 2 TdP Risk",
+        data: [Prob_Model2a * 100, Prob_Model2b * 100, (1 - Prob_Model2a - Prob_Model2b) * 100],
+        backgroundColor: ["#d9534f", "#f0ad4e", "#5cb85c"]
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true, max: 100 } },
+      plugins: { legend: { display: false } }
+    }
+  });
+.toFixed(1)}%</p>
   `;
 
   // === Bar Chart for Model 2 ===

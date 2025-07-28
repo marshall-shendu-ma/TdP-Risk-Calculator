@@ -61,8 +61,6 @@
       </form>
     </section>
 
-    <section id="results" class="results"></section>
-
     <section class="charts">
       <div class="chart-block">
         <h2>Predicted QT Prolongation Based on Kilfoil Model (Kilfoil et al, 2021)</h2>
@@ -72,14 +70,16 @@
         <p id="estimatedQTc"></p>
       </div>
 
-      <div class="chart-block">
-        <h2>Model 1 TdP Risk</h2>
-        <div id="model1Risk"></div>
+      <div class="model-panel">
+        <h2>Model 1 TdP Risk (Logistic Regression)</h2>
+        <div id="model1Results"></div>
+        <canvas id="model1Chart"></canvas>
       </div>
 
-      <div class="chart-block">
-        <h2>Model 2 TdP Risk</h2>
-        <canvas id="riskBarChart"></canvas>
+      <div class="model-panel">
+        <h2>Model 2 TdP Risk (Ordinal Regression)</h2>
+        <div id="model2Results"></div>
+        <canvas id="model2Chart"></canvas>
       </div>
 
       <div class="chart-block">

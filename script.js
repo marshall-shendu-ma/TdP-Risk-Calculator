@@ -128,7 +128,7 @@ function updateModelPanel() {
   }
   modelChart = new Chart(document.getElementById("modelChart"), {
     type:"bar",
-    data:{ labels, datasets:[{ label, data, backgroundColor: ["#f0ad4e","#5cb85c"].slice(0, data.length) }] },
+    data:{ labels, datasets:[{ label, data, backgroundColor: ["#f0ad4e", "#5cb85c"] }] },
     options:{ scales:{ y:{beginAtZero:true, max:100} }, plugins:{legend:{display:false}} }
   });
 }

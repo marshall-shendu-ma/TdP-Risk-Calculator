@@ -17,7 +17,6 @@
 
     <section class="inputs">
       <form id="riskForm">
-        <!-- form fields (unchanged) -->
         <div class="field-group">
           <label for="cmax">Cmax (nM)</label>
           <input type="number" step="any" id="cmax" name="cmax" autocomplete="off" placeholder="e.g. 150.5" required>
@@ -51,12 +50,14 @@
             <tbody id="dataBody">
               <tr>
                 <td>
-                  <label class="sr-only" for="conc1">Conc (µM)</label>
-                  <input type="number" step="any" id="conc1" name="conc[]" required>
+                  <label class="sr-only">Conc (µM)
+                    <input type="number" step="any" name="conc[]" required>
+                  </label>
                 </td>
                 <td>
-                  <label class="sr-only" for="fpdc1">FPDc (ms)</label>
-                  <input type="number" step="any" id="fpdc1" name="fpdc[]" required>
+                  <label class="sr-only">FPDc (ms)
+                    <input type="number" step="any" name="fpdc[]" required>
+                  </label>
                 </td>
               </tr>
             </tbody>
@@ -69,7 +70,6 @@
     </section>
 
     <section class="charts">
-      <!-- QT prolongation section unchanged -->
       <div class="chart-block">
         <h2>Predicted QT Prolongation Based on Kilfoil Model (Kilfoil et al, 2021)</h2>
         <p><strong>Notes:</strong> QTc is the estimated compound concentration that induces >10 ms QT prolongation.<br>
@@ -78,7 +78,6 @@
         <p id="estimatedQTc"></p>
       </div>
 
-      <!-- Single toggleable panel -->
       <div class="model-panel">
         <div class="panel-header">
           <h2 id="modelTitle">Model 1 TdP Risk (Logistic Regression)</h2>
@@ -89,7 +88,6 @@
         <canvas id="modelChart"></canvas>
       </div>
 
-      <!-- Hill fit unchanged -->
       <div class="chart-block">
         <h2>Hill Fit Curve</h2>
         <canvas id="hillPlot"></canvas>

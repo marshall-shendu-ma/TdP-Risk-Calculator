@@ -19,11 +19,11 @@
       <form id="riskForm">
         <div class="field-group">
           <label for="cmax">Cmax (nM)</label>
-          <input type="number" step="any" id="cmax" placeholder="e.g. 150.5" required>
+          <input type="number" step="any" id="cmax" name="cmax" autocomplete="off" placeholder="e.g. 150.5" required>
         </div>
         <div class="field-group">
           <label for="arrhythmia">Arrhythmia Type</label>
-          <select id="arrhythmia">
+          <select id="arrhythmia" name="arrhythmia">
             <option value="0">No arrhythmia</option>
             <option value="1">Type A arrhythmia</option>
             <option value="2">Other arrhythmia</option>
@@ -31,11 +31,11 @@
         </div>
         <div class="field-group">
           <label for="celltype">Cell Type (numeric)</label>
-          <input type="number" step="any" id="celltype" placeholder="e.g. 5" required>
+          <input type="number" step="any" id="celltype" name="celltype" autocomplete="off" placeholder="e.g. 5" required>
         </div>
         <div class="field-group">
           <label for="assay">Assay Time</label>
-          <select id="assay">
+          <select id="assay" name="assay">
             <option value="30">30 min</option>
             <option value="24">24 hours</option>
           </select>
@@ -49,8 +49,14 @@
             </thead>
             <tbody id="dataBody">
               <tr>
-                <td><input type="number" step="any" required></td>
-                <td><input type="number" step="any" required></td>
+                <td>
+                  <label class="sr-only" for="conc1">Conc (µM)</label>
+                  <input type="number" step="any" id="conc1" name="conc[]" required>
+                </td>
+                <td>
+                  <label class="sr-only" for="fpdc1">FPDc (ms)</label>
+                  <input type="number" step="any" id="fpdc1" name="fpdc[]" required>
+                </td>
               </tr>
             </tbody>
           </table>

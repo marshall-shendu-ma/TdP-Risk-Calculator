@@ -4,8 +4,14 @@ function addRow() {
   const tbody = document.getElementById("dataBody");
   const newRow = document.createElement("tr");
   newRow.innerHTML = `
-    <td><input type="number" step="any" required></td>
-    <td><input type="number" step="any" required></td>
+    <td>
+      <label class="sr-only">Conc (µM)</label>
+      <input type="number" step="any" name="conc[]" required>
+    </td>
+    <td>
+      <label class="sr-only">FPDc (ms)</label>
+      <input type="number" step="any" name="fpdc[]" required>
+    </td>
   `;
   tbody.appendChild(newRow);
 }
@@ -70,16 +76,10 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   const Predictor7 = FPD_Cmax;
 
   const Threshold_FPDc = assayTime === "30" ? Bottom * 1.103 : Bottom * 1.0794;
-  const QTcEqUsed = assayTime === "30"
-    ? "QTc = 0.92 * x - 0.35"
-    : "QTc = 0.93 * x - 0.17";
   const EstQTcLogM = assayTime === "30"
     ? (Threshold_FPDc + 0.35) / 0.92
     : (Threshold_FPDc + 0.17) / 0.93;
   const EstQTc_uM = Math.pow(10, EstQTcLogM);
-
-  const Threshold_C = bestParams.EC50 / Math.pow((bestParams.Top - bestParams.Bottom) / (Threshold_FPDc - bestParams.Bottom) - 1, 1 / bestParams.Hill);
-  const Threshold_C_logM = Math.log10(Threshold_C * 1e-6);
 
   const P1_High = -0.1311 + Predictor1 + Predictor4 * 0.00687 + Predictor7 * 0.0232;
   const Prob_Model1 = 1 / (1 + Math.exp(-P1_High));
@@ -97,17 +97,12 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
   `;
 
   // === Update Model 1 Risk Section ===
-  document.getElementById("model1Risk").innerHTML = `
-    <p><strong>High/Intermediate TdP Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
-    <p><strong>Low TdP Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
-  // === Update Model 1 Risk Section ===
   document.getElementById("model1Results").innerHTML = `
     <p><strong>High or Intermediate Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
     <p><strong>Low Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
   `;
-  `;
 
-  if (window.model1Chart) model1Chart.destroy();
+  if (model1Chart) model1Chart.destroy();
   model1Chart = new Chart(document.getElementById("model1Chart"), {
     type: "bar",
     data: {
@@ -131,7 +126,7 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
     <p><strong>Low Risk:</strong> ${((1 - Prob_Model2a - Prob_Model2b) * 100).toFixed(1)}%</p>
   `;
 
-  if (window.model2Chart) model2Chart.destroy();
+  if (model2Chart) model2Chart.destroy();
   model2Chart = new Chart(document.getElementById("model2Chart"), {
     type: "bar",
     data: {
@@ -146,23 +141,6 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
       scales: { y: { beginAtZero: true, max: 100 } },
       plugins: { legend: { display: false } }
     }
-  });
-.toFixed(1)}%</p>
-  `;
-
-  // === Bar Chart for Model 2 ===
-  if (barChart) barChart.destroy();
-  barChart = new Chart(document.getElementById("riskBarChart"), {
-    type: "bar",
-    data: {
-      labels: ["High", "Intermediate", "Low"],
-      datasets: [{
-        label: "% TdP Risk (Model 2)",
-        data: [Prob_Model2a * 100, Prob_Model2b * 100, (1 - Prob_Model2a - Prob_Model2b) * 100],
-        backgroundColor: ["#d9534f", "#f0ad4e", "#5cb85c"]
-      }]
-    },
-    options: { scales: { y: { beginAtZero: true, max: 100 } } }
   });
 
   // === Hill Curve Plot ===

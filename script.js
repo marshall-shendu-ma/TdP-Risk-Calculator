@@ -102,8 +102,8 @@ document.getElementById("riskForm").addEventListener("submit", function (e) {
     <p><strong>Low TdP Risk:</strong> ${((1 - Prob_Model1) * 100)
   // === Update Model 1 Risk Section ===
   document.getElementById("model1Results").innerHTML = `
-    <p><strong>High or Intermediate Risk:</strong> ${(Prob_Model1 * 100).toFixed(1)}%</p>
-    <p><strong>Low Risk:</strong> ${((1 - Prob_Model1) * 100).toFixed(1)}%</p>
+    <p><strong>High or Intermediate Risk:</strong> ${ (Prob_Model1 * 100).toFixed(1) }%</p>
+    <p><strong>Low Risk:</strong> ${ ((1 - Prob_Model1) * 100).toFixed(1) }%</p>
   `;
 
   if (window.model1Chart) model1Chart.destroy();
